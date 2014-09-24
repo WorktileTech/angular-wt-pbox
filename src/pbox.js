@@ -11,9 +11,7 @@
                 animation: true,
                 popupDelay: 0,
                 arrow: false,
-                //backdrop       : false,
                 popboxClass: 'popbox',
-                //backdropClass  : 'popbox-backdrop',
                 transitionClass: 'fade',
                 triggerClass: 'in',
                 popboxOpenClass: 'popbox-open',
@@ -22,7 +20,6 @@
                 popboxFade: false,
                 keyboard: true, // close with esc key
                 backdropClick: true, // only in conjunction with backdrop=true
-                /* other options: template, templateUrl, controller */
                 autoAdapt: false
             };
 
@@ -67,13 +64,14 @@
 
                         var pboxResultDeferred = $q.defer();
                         var pboxOpenedDeferred = $q.defer();
+                        var pboxElement = null;
 
                         //prepare an instance of a modal to be injected into controllers and returned to a caller
                         var pboxInstance = {
                             result: pboxResultDeferred.promise,
                             opened: pboxOpenedDeferred.promise,
-                            close: function (result) {
-                                //$modalStack.close(modalInstance, result);
+                            close: function () {
+                                document.body.removeChild(pboxElement);
                             },
                             dismiss: function (reason) {
                                 //$modalStack.dismiss(modalInstance, reason);
@@ -111,11 +109,13 @@
                                 });
 
                                 ctrlInstance = $controller(options.controller, ctrlLocals);
+                                pboxInstance.ctrlInstance = ctrlInstance;
                             }
-                            var pboxElement = angular.element('<div class="pbox"></div>');
-                            pboxElement.html(tplAndVars[0]);
-                            var outHtml = $compile(pboxElement)(pboxScope);
-                            document.body.appendChild(outHtml[0]);
+                            var outerElement = angular.element('<div class="pbox"></div>');
+                            outerElement.html(tplAndVars[0]);
+                            outerElement = $compile(outerElement)(pboxScope);
+                            pboxElement = outerElement[0];
+                            document.body.appendChild(outerElement[0]);
 
                         }, function resolveError(reason) {
                             pboxResultDeferred.reject(reason);

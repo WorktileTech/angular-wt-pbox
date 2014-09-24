@@ -6,22 +6,30 @@
 </head>
 <body>
 
-<div ng-controller="sampleCtrl"></div>
+<div ng-controller="sampleCtrl">
+    <button ng-click="open()">open</button>
+</div>
 
 <script src="../bower_components/angular/angular.js"></script>
 <script src="../src/pbox.js"></script>
 <script>
     var app = angular.module("app", ["wt.pbox"]);
     app.controller("sampleCtrl", ["$scope", "$pbox", function ($scope, $pbox) {
-        $pbox.open({
-            template: '<a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button>',
-            controller: function ($scope) {
-                $scope.aaa = "sss";
-                $scope.add = function(){
-                    $scope.aaa = "bbbbbb";
+        var pbox = null;
+        $scope.open = function () {
+            pbox = $pbox.open({
+                template: '<a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button>',
+                controller: function ($scope) {
+                    $scope.aaa = "sss";
+                    $scope.add = function () {
+                        $scope.aaa = "bbbbbb";
+                    }
                 }
-            }
-        });
+            });
+        };
+        $scope.close = function () {
+            pbox.close();
+        }
     }]);
 
 </script>

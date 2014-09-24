@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<div ng-controller="sampleCtrl"></div>
+
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../src/pbox.js"></script>
+<script>
+    var app = angular.module("app", ["wt.pbox"]);
+    app.controller("sampleCtrl", ["$scope", "$pbox", function ($scope, $pbox) {
+        $pbox.open({
+            template: '<a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button>',
+            controller: function ($scope) {
+                $scope.aaa = "sss";
+                $scope.add = function(){
+                    $scope.aaa = "bbbbbb";
+                }
+            }
+        });
+    }]);
+
+</script>
+</body>
+</html>

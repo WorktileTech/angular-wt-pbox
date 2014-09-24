@@ -1,0 +1,6 @@
+{
+  "name": "angular-wtpbox",
+  "dependencies": {
+    "angular": "~1.2.25"
+  }
+}

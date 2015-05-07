@@ -1,6 +1,8 @@
 {
   "name": "angular-wtpbox",
+  "version": "0.0.1",
   "dependencies": {
-    "angular": "~1.2.25"
+    "angular": "~1.2.25",
+    "jquery": "~2.1.4"
   }
 }

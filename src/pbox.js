@@ -9,8 +9,8 @@
                     calculatePos: function (options, $element, $boxElement) {
                         var elementTop = $element.offset().top,
                             elementLeft = $element.offset().left,
-                            dicOuterWidth = $document.outerWidth(),
-                            dicOuterHeight = $document.outerHeight(),
+                            docOuterWidth = $document.outerWidth(),
+                            docOuterHeight = $document.outerHeight(),
                             elementOuterWidth = $element.outerWidth(),
                             elementOuterHeight = $element.outerHeight(),
                             boxWidth = $boxElement.outerWidth(true),
@@ -31,10 +31,10 @@
                                 if (left < 0) {
                                     left = options.offset;
                                 }
-                                if (left + boxWidth > dicOuterWidth) {
-                                    left = dicOuterWidth - boxWidth - options.offset;
+                                if (left + boxWidth > docOuterWidth) {
+                                    left = docOuterWidth - boxWidth - options.offset;
                                 }
-                                if (top + boxHeight > dicOuterHeight) {
+                                if (top + boxHeight > docOuterHeight) {
                                     top = elementTop - boxHeight - options.offset;
                                 }
                                 break;
@@ -53,15 +53,40 @@
                                 if (left < 0) {
                                     left = options.offset;
                                 }
-                                if (left + boxWidth > dicOuterWidth) {
-                                    left = dicOuterWidth - boxWidth - options.offset;
+                                if (left + boxWidth > docOuterWidth) {
+                                    left = docOuterWidth - boxWidth - options.offset;
                                 }
                                 if (top < boxHeight) {
                                     top = elementTop + elementOuterHeight + options.offset;
                                 }
                                 break;
                             case "left":
-                                left = elementLeft - boxWidth - options.offset;
+                                right = ~~(docOuterWidth - elementLeft + options.offset);
+                                if (right + boxWidth + options.offset > docOuterWidth) {
+                                    right = 0;
+                                    left = ~~(elementLeft + elementOuterWidth + options.offset);
+                                }
+                                if (options.align === "top") {
+                                    top = elementTop;
+                                } else if (options.align === "bottom") {
+                                    top = elementTop + elementOuterHeight - boxHeight;
+                                }
+                                else {
+                                    top = ~~(elementTop - boxHeight / 2 + elementOuterHeight / 2);
+                                }
+
+                                if (top < 0) {
+                                    top = options.offset;
+                                } else if (top + boxHeight > docOuterHeight) {
+                                    top = docOuterHeight - boxHeight - options.offset;
+                                }
+                                break;
+                            case "right":
+                                left = elementLeft + elementOuterWidth + options.offset;
+                                if(left + boxWidth + options.offset > docOuterWidth){
+                                    left = 0;
+                                    right = docOuterWidth - elementLeft + options.offset;
+                                }
                                 if (options.align === "top") {
                                     top = elementTop;
                                 } else if (options.align === "bottom") {
@@ -70,33 +95,27 @@
                                 else {
                                     top = elementTop - boxHeight / 2 + elementOuterHeight / 2;
                                 }
-                                if (left < 0) {
-                                    left = elementLeft + elementOuterWidth + options.offset;
-                                } else if (left + boxWidth > dicOuterWidth) {
-                                    left = elementLeft + elementOuterWidth + options.offset;
-                                }
+
                                 if (top < 0) {
                                     top = options.offset;
-                                } else if (top + boxHeight > dicOuterHeight) {
-                                    top = dicOuterHeight - boxHeight - options.offset;
+                                } else if (top + boxHeight > docOuterHeight) {
+                                    top = docOuterHeight - boxHeight - options.offset;
                                 }
-                                break;
-                            case "right":
                                 break;
                             default:
                                 break;
                         }
 
-                        if (top !== undefined) {
+                        if (top) {
                             $boxElement.css("top", top);
                         }
-                        if (bottom !== undefined) {
+                        if (bottom) {
                             $boxElement.css("bottom", bottom);
                         }
-                        if (left !== undefined) {
+                        if (left) {
                             $boxElement.css("left", left);
                         }
-                        if (right !== undefined) {
+                        if (right) {
                             $boxElement.css("right", right);
                         }
 
@@ -229,7 +248,7 @@
                                             isResult = true;
                                         }
                                     }
-                                    if(isResult){
+                                    if (isResult) {
                                         return;
                                     }
                                 }
@@ -244,8 +263,9 @@
 
                             $compile(this._pboxElement)(scope);
                             $body.append(this._pboxElement);
-
-                            $wtPosition.calculatePos(options, $target, this._pboxElement);
+                            $timeout(function () {
+                                $wtPosition.calculatePos(options, $target, _self._pboxElement);
+                            });
                             this._bindEvents();
                         };
 
@@ -308,7 +328,7 @@
                                 pboxInstance.ctrlInstance = ctrlInstance;
                             }
 
-                            pboxInstance.open(tplAndVars[0],pboxScope);
+                            pboxInstance.open(tplAndVars[0], pboxScope);
 
                         }, function resolveError(reason) {
                             pboxInstance.resultDeferred.reject(reason);

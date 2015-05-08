@@ -11,8 +11,53 @@
 <div ng-controller="sampleCtrl">
     <button data-placement="left" ng-click="open($event)">open</button>
     <p>ddddd</p>
-    <p>ddddd</p> <p>ddddd</p> <p>ddd  <button data-placement="left" ng-click="open($event)">open</button>  <button data-placement="right" ng-click="open($event)">open right</button>dddffffffffffffddddddffffffffffffddddddffffffffffffddddddffffffffffffddddddffffffffffff  <button data-placement="left" ng-click="open($event)">open</button>  <button data-placement="left" ng-click="open($event)">open</button>  <button data-placement="right" ng-click="open($event)">open right</button>  <button data-placement="left" ng-click="open($event)">open</button>  <button data-placement="left" ng-click="open($event)">open</button>  <button data-placement="left" ng-click="open($event)">open</button></p> <p>ddddd</p> <p>ddddd</p> <button data-placement="left" ng-click="open($event)">open</button><p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p>
-    <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p> <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddd
+        <button data-placement="left" ng-click="open($event)">open</button>
+        <button data-placement="right" ng-click="open($event)">open right</button>
+        dddffffffffffffddddddffffffffffffddddddffffffffffffddddddffffffffffffddddddffffffffffff
+        <button data-placement="left" ng-click="open($event)">open</button>
+        <button data-placement="left" ng-click="open($event)">open</button>
+        <button data-placement="right" ng-click="open($event)">open right</button>
+        <button data-placement="left" ng-click="open($event)">open</button>
+        <button data-placement="left" ng-click="open($event)">open</button>
+        <button data-placement="left" ng-click="open($event)">open</button>
+    </p>
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+    <button data-placement="left" ng-click="open($event)">open</button>
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
+
+    <p>ddddd</p>
     <button data-placement="bottom" ng-click="open($event)">open</button>
 </div>
 <script src="../bower_components/jquery/dist/jquery.js"></script>
@@ -22,23 +67,24 @@
 <script>
     var app = angular.module("app", ["wt.pbox"]);
     app.controller("sampleCtrl", ["$scope", "$pbox", function ($scope, $pbox) {
-        var pbox = null;
         $scope.open = function ($event) {
-            pbox = $pbox.open({
-                event     : $event,
-                templateUrl:"box.html",
+            var pbox = $pbox.open({
+                event      : $event,
+                templateUrl: "box.html",
                 //template  : '<div><a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button></div>',
-                controller: function ($scope,$pboxInstance) {
+                controller : function ($scope, $pboxInstance) {
                     $scope.aaa = "sss";
                     $scope.add = function () {
                         $scope.aaa = "bbbbbb";
                     }
                 }
             });
+            pbox.result.then(function (result) {
+                alert("close,result:" + result);
+            }, function () {
+                alert("dismiss");
+            });
         };
-        $scope.close = function () {
-            pbox.close();
-        }
     }]);
 
 </script>

@@ -233,6 +233,12 @@
 
                         $target.data(globalOptions.boxInstanceName, this);
 
+                        PBoxModal.prototype._remove = function(){
+                            this._$target.removeData(globalOptions.boxInstanceName);
+                            this._$target.removeClass(this._options.openClass);
+                            this._pboxElement.remove();
+                        };
+
                         PBoxModal.prototype._bindEvents = function () {
                             $document.bind("mousedown.pbox", function (e) {
                                 var _eTarget = angular.element(e.target);
@@ -260,21 +266,22 @@
                         PBoxModal.prototype.open = function (tpl, scope) {
                             this._pboxElement = angular.element('<div class="pbox"></div>');
                             this._pboxElement.html(tpl);
-
+                            this._$target.addClass(this._options.openClass);
                             $compile(this._pboxElement)(scope);
                             $body.append(this._pboxElement);
                             $timeout(function () {
-                                $wtPosition.calculatePos(options, $target, _self._pboxElement);
+                                $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
                             });
                             this._bindEvents();
                         };
 
                         PBoxModal.prototype.close = function (result) {
-                            this._$target.removeData(globalOptions.boxInstanceName);
-                            this._pboxElement.remove();
+                            this._remove();
                             _resultDeferred.resolve(result);
                         };
+
                         PBoxModal.prototype.dismiss = function (reason) {
+                            this._remove();
                             _resultDeferred.reject(reason);
                         }
                     }
@@ -293,6 +300,7 @@
                             throw new Error("The event.target not be null.")
                         }
 
+                        //verify is exists pbox,if exists close it and return,else open continue...
                         var $target = util.getTarget(options.event);
                         options.placement = $target.data("placement") ? $target.data("placement") : options.placement;
                         options.align = $target.data("align") ? $target.data("align") : options.align;
@@ -304,7 +312,6 @@
 
                         var templateAndResolvePromise =
                             $q.all([getTemplatePromise(options)].concat(getResolvePromises(options.resolve)));
-
 
                         templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
 

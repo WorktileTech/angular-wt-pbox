@@ -16,18 +16,23 @@ wt-pbox  Worktile 使用的基于 Angular.js 的弹出层插件
  <button data-placement="left" ng-click="open($event)">open</button>
 
   $scope.open = function ($event) {
-      var pbox = $pbox.open({
-          event     : $event,
-          templateUrl:"box.html",
-          //template  : '<div><a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button></div>',
-          controller: function ($scope,$pboxInstance) {
-               $scope.aaa = "sss";
-               $scope.add = function () {
-                   $scope.aaa = "bbbbbb";
-               }
-           }
-      });
-  };
+     var pbox = $pbox.open({
+         event      : $event,
+         templateUrl: "box.html",
+         //template  : '<div><a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button></div>',
+         controller : function ($scope, $pboxInstance) {
+             $scope.aaa = "sss";
+             $scope.add = function () {
+                 $scope.aaa = "bbbbbb";
+             }
+         }
+     });
+     pbox.result.then(function (result) {
+         alert("close,result:" + result);
+     }, function () {
+         alert("dismiss");
+     });
+ };
 ```
 
 ## 参数说明

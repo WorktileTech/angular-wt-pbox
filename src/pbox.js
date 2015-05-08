@@ -9,14 +9,13 @@
                     calculatePos: function (options, $element, $boxElement) {
                         var elementTop = $element.offset().top,
                             elementLeft = $element.offset().left,
-                            elementRight = $element.offset().right,
                             dicOuterWidth = $document.outerWidth(),
                             dicOuterHeight = $document.outerHeight(),
-                            top, left, right, bottom,
                             elementOuterWidth = $element.outerWidth(),
                             elementOuterHeight = $element.outerHeight(),
                             boxWidth = $boxElement.outerWidth(true),
-                            boxHeight = $boxElement.outerHeight(true);
+                            boxHeight = $boxElement.outerHeight(true),
+                            top, left, right, bottom;
                         switch (options.placement) {
                             case "bottom":
                                 top = elementTop + elementOuterHeight + options.offset;
@@ -91,6 +90,9 @@
                         if (top !== undefined) {
                             $boxElement.css("top", top);
                         }
+                        if (bottom !== undefined) {
+                            $boxElement.css("bottom", bottom);
+                        }
                         if (left !== undefined) {
                             $boxElement.css("left", left);
                         }
@@ -112,7 +114,7 @@
         .provider("$pbox", [function () {
             // The default options for all popboxs.
             var defaultOptions = {
-                placement : 'top',
+                placement : 'bottom',
                 align     : null,
                 animation : false,
                 popupDelay: 0,
@@ -125,7 +127,8 @@
             };
 
             var globalOptions = {
-                triggerClass: "pbox-trigger"
+                triggerClass   : "pbox-trigger",
+                boxInstanceName: "boxInstance"
             };
 
             this.options = function (value) {
@@ -133,15 +136,34 @@
             };
 
             var util = {
+                hasClass  : function (element, className) {
+                    return element.hasClass(className) || element.parents("." + className).length > 0;
+                },
                 hasClasses: function (element, classes) {
                     var result = false;
                     classes.forEach(function (className) {
                         if (result) {
                             return;
                         }
-                        result = element.hasClass(className) || element.parents("." + className).length > 0;
+                        result = util.hasClass(element, className);
                     });
                     return result;
+                },
+                getTarget : function (event) {
+                    var $target = angular.element(event.target);
+                    if (!$target) {
+                        throw new Error("The event")
+                    }
+                    if ($target.hasClass(globalOptions.triggerClass)) {
+                        return $target
+                    }
+                    var $trigger = $target.parents("." + globalOptions.triggerClass);
+                    if ($trigger.length > 0) {
+                        $target = $trigger;
+                    } else {
+                        $target.addClass(globalOptions.triggerClass);
+                    }
+                    return $target;
                 }
             };
 
@@ -177,42 +199,67 @@
                         return promisesArr;
                     }
 
-                    $pbox.open = function (options) {
+                    function PBoxModal(options, $target) {
+                        var _resultDeferred = $q.defer();
+                        var _openedDeferred = $q.defer();
+                        this.resultDeferred = _resultDeferred;
+                        this.openedDeferred = _openedDeferred;
+                        this.result = _resultDeferred.promise;
+                        this.opened = _openedDeferred.promise;
 
-                        var pboxResultDeferred = $q.defer();
-                        var pboxOpenedDeferred = $q.defer();
-                        var pboxElement = null;
+                        var _self = this;
+                        this._options = options;
+                        this._pboxElement = null;
+                        this._$target = $target;
 
-                        if (!options.event || !options.event.target) {
-                            throw new Error("The event.target not be null.")
-                        }
+                        $target.data(globalOptions.boxInstanceName, this);
 
-                        var $target = angular.element(options.event.target);
-                        var $trigger = $target.parents("." + globalOptions.triggerClass);
-                        if ($trigger.length > 0) {
-                            $target = $trigger;
-                        } else {
-                            $target.addClass(globalOptions.triggerClass);
-                        }
-                        if ($target.data("pboxInstance")) {
-                            return $target.data("pboxInstance").close();
-                        }
-
-                        options.placement = $target.data("placement") ? $target.data("placement") : options.placement;
-
-                        //prepare an instance of a modal to be injected into controllers and returned to a caller
-                        var pboxInstance = {
-                            result : pboxResultDeferred.promise,
-                            opened : pboxOpenedDeferred.promise,
-                            close  : function () {
-                                $target.removeData("pboxInstance");
-                                pboxElement.remove();
-                            },
-                            dismiss: function (reason) {
-                                //$modalStack.dismiss(modalInstance, reason);
-                            }
+                        PBoxModal.prototype._bindEvents = function () {
+                            $document.bind("mousedown.pbox", function (e) {
+                                var _eTarget = angular.element(e.target);
+                                if (util.hasClass(_eTarget, 'pbox')) {
+                                    return;
+                                }
+                                if (util.hasClass(_eTarget, globalOptions.triggerClass)) {
+                                    var isResult = false;
+                                    var _target = util.getTarget(e);
+                                    if (_target && _target.data(globalOptions.boxInstanceName)) {
+                                        var instance = _target.data(globalOptions.boxInstanceName);
+                                        if (instance === _self) {
+                                            isResult = true;
+                                        }
+                                    }
+                                    if(isResult){
+                                        return;
+                                    }
+                                }
+                                $document.unbind("mousedown.pbox");
+                                _self.close();
+                            });
                         };
-                        $target.data("pboxInstance", pboxInstance);
+
+                        PBoxModal.prototype.open = function (tpl, scope) {
+                            this._pboxElement = angular.element('<div class="pbox"></div>');
+                            this._pboxElement.html(tpl);
+
+                            $compile(this._pboxElement)(scope);
+                            $body.append(this._pboxElement);
+
+                            $wtPosition.calculatePos(options, $target, this._pboxElement);
+                            this._bindEvents();
+                        };
+
+                        PBoxModal.prototype.close = function (result) {
+                            this._$target.removeData(globalOptions.boxInstanceName);
+                            this._pboxElement.remove();
+                            _resultDeferred.resolve(result);
+                        };
+                        PBoxModal.prototype.dismiss = function (reason) {
+                            _resultDeferred.reject(reason);
+                        }
+                    }
+
+                    $pbox.open = function (options) {
 
                         //merge and clean up options
                         options = angular.extend({}, defaultOptions, options);
@@ -222,6 +269,18 @@
                         if (!options.template && !options.templateUrl) {
                             throw new Error('One of template or templateUrl options is required.');
                         }
+                        if (!options.event || !options.event.target) {
+                            throw new Error("The event.target not be null.")
+                        }
+
+                        var $target = util.getTarget(options.event);
+                        options.placement = $target.data("placement") ? $target.data("placement") : options.placement;
+                        options.align = $target.data("align") ? $target.data("align") : options.align;
+                        if ($target.data(globalOptions.boxInstanceName)) {
+                            return $target.data(globalOptions.boxInstanceName).close();
+                        }
+
+                        var pboxInstance = new PBoxModal(options, $target);
 
                         var templateAndResolvePromise =
                             $q.all([getTemplatePromise(options)].concat(getResolvePromises(options.resolve)));
@@ -248,33 +307,17 @@
                                 ctrlInstance = $controller(options.controller, ctrlLocals);
                                 pboxInstance.ctrlInstance = ctrlInstance;
                             }
-                            pboxElement = angular.element('<div class="pbox"></div>');
-                            pboxElement.html(tplAndVars[0]);
-                            //outerElement.css({display: 'none'});
-                            //pboxInstance._boxElement = outerElement;
 
-                            $document.bind("mousedown.pbox", function (e) {
-                                var _target = angular.element(e.target);
-                                if (util.hasClasses(_target, ["pbox", globalOptions.triggerClass])) {
-                                    return;
-                                }
-                                $document.unbind("mousedown.pbox");
-                                pboxInstance.close();
-                            });
-
-                            $compile(pboxElement)(pboxScope);
-                            $body.append(pboxElement);
-
-                            $wtPosition.calculatePos(options, $target, pboxElement);
+                            pboxInstance.open(tplAndVars[0],pboxScope);
 
                         }, function resolveError(reason) {
-                            pboxResultDeferred.reject(reason);
+                            pboxInstance.resultDeferred.reject(reason);
                         });
 
                         templateAndResolvePromise.then(function () {
-                            pboxOpenedDeferred.resolve(true);
+                            pboxInstance.openedDeferred.resolve(true);
                         }, function () {
-                            pboxOpenedDeferred.reject(false);
+                            pboxInstance.openedDeferred.reject(false);
                         });
 
                         return pboxInstance;

@@ -67,7 +67,7 @@
                                 case "left":
                                     right = ~~(docOuterWidth - elementLeft + options.offset);
                                     if (right + boxWidth + options.offset > docOuterWidth) {
-                                        right = 0;
+                                        right = undefined;
                                         left = ~~(elementLeft + elementOuterWidth + options.offset);
                                     }
                                     if (options.align === "top") {
@@ -88,7 +88,7 @@
                                 case "right":
                                     left = elementLeft + elementOuterWidth + options.offset;
                                     if (left + boxWidth + options.offset > docOuterWidth) {
-                                        left = 0;
+                                        left = undefined;
                                         right = docOuterWidth - elementLeft + options.offset;
                                     }
                                     if (options.align === "top") {
@@ -223,7 +223,7 @@
                         return promisesArr;
                     }
 
-                    function PBoxModal(options, $target) {
+                    function BoxModal(options, $target) {
                         var _resultDeferred = $q.defer();
                         var _openedDeferred = $q.defer();
                         var _self = this;
@@ -238,13 +238,13 @@
 
                         $target.data(globalOptions.boxInstanceName, this);
 
-                        PBoxModal.prototype._remove = function () {
+                        BoxModal.prototype._remove = function () {
                             _self._$target.removeData(globalOptions.boxInstanceName);
                             _self._$target.removeClass(this._options.openClass);
                             _self._pboxElement.remove();
                         };
 
-                        PBoxModal.prototype._bindEvents = function () {
+                        BoxModal.prototype._bindEvents = function () {
                             $document.bind("mousedown.pbox", function (e) {
                                 var _eTarget = angular.element(e.target);
                                 if (util.hasClass(_eTarget, 'pbox')) {
@@ -268,7 +268,7 @@
                             });
                         };
 
-                        PBoxModal.prototype.open = function (tpl, scope) {
+                        BoxModal.prototype.open = function (tpl, scope) {
                             _self._pboxElement = angular.element('<div class="pbox"></div>');
                             _self._pboxElement.html(tpl);
                             _self._$target.addClass(_self._options.openClass);
@@ -280,12 +280,12 @@
                             _self._bindEvents();
                         };
 
-                        PBoxModal.prototype.close = function (result) {
+                        BoxModal.prototype.close = function (result) {
                             _self._remove();
                             _resultDeferred.resolve(result);
                         };
 
-                        PBoxModal.prototype.dismiss = function (reason) {
+                        BoxModal.prototype.dismiss = function (reason) {
                             _self._remove();
                             _resultDeferred.reject(reason);
                         }
@@ -310,28 +310,30 @@
                         options.placement = $target.data("placement") ? $target.data("placement") : options.placement;
                         options.align = $target.data("align") ? $target.data("align") : options.align;
                         if ($target.data(globalOptions.boxInstanceName)) {
-                            return $target.data(globalOptions.boxInstanceName).close();
+                            $target.data(globalOptions.boxInstanceName).close();
+                            //fix click error when user result.then();
+                            return {result: $q.defer().promise};
                         }
 
-                        var pboxInstance = new PBoxModal(options, $target);
+                        var pboxInstance = new BoxModal(options, $target);
 
                         var templateAndResolvePromise =
                             $q.all([getTemplatePromise(options)].concat(getResolvePromises(options.resolve)));
 
                         templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
 
-                            var pboxScope = (options.scope || $rootScope).$new();
-                            pboxScope.$close = pboxInstance.close;
-                            pboxScope.$dismiss = pboxInstance.dismiss;
+                            var boxScope = (options.scope || $rootScope).$new();
+                            boxScope.$close = pboxInstance.close;
+                            boxScope.$dismiss = pboxInstance.dismiss;
 
                             var ctrlInstance, ctrlLocals = {};
                             var resolveIter = 1;
 
                             //controllers
                             if (options.controller) {
-                                ctrlLocals.$scope = pboxScope;
+                                ctrlLocals.$scope = boxScope;
                                 ctrlLocals.$pboxInstance = pboxInstance;
-                                pboxScope.$pboxInstance = pboxInstance;
+                                boxScope.$pboxInstance = pboxInstance;
                                 angular.forEach(options.resolve, function (value, key) {
                                     ctrlLocals[key] = tplAndVars[resolveIter++];
                                 });
@@ -339,11 +341,11 @@
                                 ctrlInstance = $controller(options.controller, ctrlLocals);
                                 pboxInstance.ctrlInstance = ctrlInstance;
                                 if (options.controllerAs) {
-                                    pboxScope[options.controllerAs] = ctrlInstance;
+                                    boxScope[options.controllerAs] = ctrlInstance;
                                 }
                             }
 
-                            pboxInstance.open(tplAndVars[0], pboxScope);
+                            pboxInstance.open(tplAndVars[0], boxScope);
 
                         }, function resolveError(reason) {
                             pboxInstance.resultDeferred.reject(reason);

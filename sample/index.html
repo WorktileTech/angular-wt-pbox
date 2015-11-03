@@ -41,6 +41,7 @@
 
     <p>ddddd</p>
 
+    <button ng-click="openTopLeft($event)">open top:100,left:100</button>
     <p>ddddd</p>
 
     <p>ddddd</p>
@@ -67,12 +68,34 @@
 <script>
     var app = angular.module("app", ["wt.pbox"]);
     app.controller("sampleCtrl", ["$scope", "$pbox", function ($scope, $pbox) {
-        $scope.open = function ($event) {
+
+        $scope.openTopLeft = function ($event) {
             var pbox = $pbox.open({
-                event      : $event,
+                event: $event,
+                top: 100,
+                left: 100,
                 templateUrl: "box.html",
                 //template  : '<div><a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button></div>',
-                controller : function ($scope, $pboxInstance) {
+                controller: function ($scope, $pboxInstance) {
+                    $scope.aaa = "sss";
+                    $scope.add = function () {
+                        $scope.aaa = "bbbbbb";
+                    }
+                }
+            });
+            pbox.result.then(function (result) {
+                //alert("close,result:" + result);
+            }, function () {
+                //alert("dismiss");
+            });
+        };
+
+        $scope.open = function ($event) {
+            var pbox = $pbox.open({
+                event: $event,
+                templateUrl: "box.html",
+                //template  : '<div><a>ssss111111 {{aaa}}</a> dddd <button ng-click="add()">click</button></div>',
+                controller: function ($scope, $pboxInstance) {
                     $scope.aaa = "sss";
                     $scope.add = function () {
                         $scope.aaa = "bbbbbb";

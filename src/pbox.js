@@ -1,5 +1,3 @@
-/*global angular,$,kzi,_ */
-/*jshint unused:false */
 (function () {
     'use strict';
     angular.module('wt.pbox', [])
@@ -16,106 +14,113 @@
                             boxWidth = $boxElement.outerWidth(true),
                             boxHeight = $boxElement.outerHeight(true),
                             top, left, right, bottom;
-                        switch (options.placement) {
-                            case "bottom":
-                                top = elementTop + elementOuterHeight + options.offset;
-                                if (options.align === "left") {
-                                    left = elementLeft;
-                                } else if (options.align === "right") {
-                                    left = elementLeft + elementOuterWidth - boxWidth;
-                                }
-                                else {
-                                    left = elementLeft - boxWidth / 2 + elementOuterWidth / 2;
-                                }
-
-                                if (left < 0) {
-                                    left = options.offset;
-                                }
-                                if (left + boxWidth > docOuterWidth) {
-                                    left = docOuterWidth - boxWidth - options.offset;
-                                }
-                                if (top + boxHeight > docOuterHeight) {
-                                    top = elementTop - boxHeight - options.offset;
-                                }
-                                break;
-                            case "top":
-                                top = elementTop - boxHeight - options.offset;
-                                left = elementLeft;
-                                if (options.align === "left") {
-                                    left = elementLeft;
-                                } else if (options.align === "right") {
-                                    left = elementLeft + elementOuterWidth - boxWidth;
-                                }
-                                else {
-                                    left = elementLeft - boxWidth / 2 + elementOuterWidth / 2;
-                                }
-
-                                if (left < 0) {
-                                    left = options.offset;
-                                }
-                                if (left + boxWidth > docOuterWidth) {
-                                    left = docOuterWidth - boxWidth - options.offset;
-                                }
-                                if (top < boxHeight) {
+                        if ((options.top !== undefined || options.bottom !== undefined) && (options.left !== undefined || options.right !== undefined)) {
+                            top = options.top;
+                            bottom = options.bottom;
+                            left = options.left;
+                            right = options.right;
+                        } else {
+                            switch (options.placement) {
+                                case "bottom":
                                     top = elementTop + elementOuterHeight + options.offset;
-                                }
-                                break;
-                            case "left":
-                                right = ~~(docOuterWidth - elementLeft + options.offset);
-                                if (right + boxWidth + options.offset > docOuterWidth) {
-                                    right = 0;
-                                    left = ~~(elementLeft + elementOuterWidth + options.offset);
-                                }
-                                if (options.align === "top") {
-                                    top = elementTop;
-                                } else if (options.align === "bottom") {
-                                    top = elementTop + elementOuterHeight - boxHeight;
-                                }
-                                else {
-                                    top = ~~(elementTop - boxHeight / 2 + elementOuterHeight / 2);
-                                }
+                                    if (options.align === "left") {
+                                        left = elementLeft;
+                                    } else if (options.align === "right") {
+                                        left = elementLeft + elementOuterWidth - boxWidth;
+                                    }
+                                    else {
+                                        left = elementLeft - boxWidth / 2 + elementOuterWidth / 2;
+                                    }
 
-                                if (top < 0) {
-                                    top = options.offset;
-                                } else if (top + boxHeight > docOuterHeight) {
-                                    top = docOuterHeight - boxHeight - options.offset;
-                                }
-                                break;
-                            case "right":
-                                left = elementLeft + elementOuterWidth + options.offset;
-                                if(left + boxWidth + options.offset > docOuterWidth){
-                                    left = 0;
-                                    right = docOuterWidth - elementLeft + options.offset;
-                                }
-                                if (options.align === "top") {
-                                    top = elementTop;
-                                } else if (options.align === "bottom") {
-                                    top = elementTop + elementOuterHeight - boxHeight;
-                                }
-                                else {
-                                    top = elementTop - boxHeight / 2 + elementOuterHeight / 2;
-                                }
+                                    if (left < 0) {
+                                        left = options.offset;
+                                    }
+                                    if (left + boxWidth > docOuterWidth) {
+                                        left = docOuterWidth - boxWidth - options.offset;
+                                    }
+                                    if (top + boxHeight > docOuterHeight) {
+                                        top = elementTop - boxHeight - options.offset;
+                                    }
+                                    break;
+                                case "top":
+                                    top = elementTop - boxHeight - options.offset;
+                                    left = elementLeft;
+                                    if (options.align === "left") {
+                                        left = elementLeft;
+                                    } else if (options.align === "right") {
+                                        left = elementLeft + elementOuterWidth - boxWidth;
+                                    }
+                                    else {
+                                        left = elementLeft - boxWidth / 2 + elementOuterWidth / 2;
+                                    }
 
-                                if (top < 0) {
-                                    top = options.offset;
-                                } else if (top + boxHeight > docOuterHeight) {
-                                    top = docOuterHeight - boxHeight - options.offset;
-                                }
-                                break;
-                            default:
-                                break;
+                                    if (left < 0) {
+                                        left = options.offset;
+                                    }
+                                    if (left + boxWidth > docOuterWidth) {
+                                        left = docOuterWidth - boxWidth - options.offset;
+                                    }
+                                    if (top < boxHeight) {
+                                        top = elementTop + elementOuterHeight + options.offset;
+                                    }
+                                    break;
+                                case "left":
+                                    right = ~~(docOuterWidth - elementLeft + options.offset);
+                                    if (right + boxWidth + options.offset > docOuterWidth) {
+                                        right = 0;
+                                        left = ~~(elementLeft + elementOuterWidth + options.offset);
+                                    }
+                                    if (options.align === "top") {
+                                        top = elementTop;
+                                    } else if (options.align === "bottom") {
+                                        top = elementTop + elementOuterHeight - boxHeight;
+                                    }
+                                    else {
+                                        top = ~~(elementTop - boxHeight / 2 + elementOuterHeight / 2);
+                                    }
+
+                                    if (top < 0) {
+                                        top = options.offset;
+                                    } else if (top + boxHeight > docOuterHeight) {
+                                        top = docOuterHeight - boxHeight - options.offset;
+                                    }
+                                    break;
+                                case "right":
+                                    left = elementLeft + elementOuterWidth + options.offset;
+                                    if (left + boxWidth + options.offset > docOuterWidth) {
+                                        left = 0;
+                                        right = docOuterWidth - elementLeft + options.offset;
+                                    }
+                                    if (options.align === "top") {
+                                        top = elementTop;
+                                    } else if (options.align === "bottom") {
+                                        top = elementTop + elementOuterHeight - boxHeight;
+                                    }
+                                    else {
+                                        top = elementTop - boxHeight / 2 + elementOuterHeight / 2;
+                                    }
+
+                                    if (top < 0) {
+                                        top = options.offset;
+                                    } else if (top + boxHeight > docOuterHeight) {
+                                        top = docOuterHeight - boxHeight - options.offset;
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
 
-                        if (top) {
+                        if (top !== undefined) {
                             $boxElement.css("top", top);
                         }
                         if (bottom) {
                             $boxElement.css("bottom", bottom);
                         }
-                        if (left) {
+                        if (left !== undefined) {
                             $boxElement.css("left", left);
                         }
-                        if (right) {
+                        if (right !== undefined) {
                             $boxElement.css("right", right);
                         }
 
@@ -133,20 +138,20 @@
         .provider("$pbox", [function () {
             // The default options for all popboxs.
             var defaultOptions = {
-                placement : 'bottom',
-                align     : null,
-                animation : false,
+                placement: 'bottom',
+                align: null,
+                animation: false,
                 popupDelay: 0,
-                arrow     : false,
-                openClass : 'pbox-open',
+                arrow: false,
+                openClass: 'pbox-open',
                 closeClass: 'pbox-close',
-                autoClose : true,
-                offset    : 1,
-                resolve   : {}
+                autoClose: true,
+                offset: 1,
+                resolve: {}
             };
 
             var globalOptions = {
-                triggerClass   : "pbox-trigger",
+                triggerClass: "pbox-trigger",
                 boxInstanceName: "boxInstance"
             };
 
@@ -155,7 +160,7 @@
             };
 
             var util = {
-                hasClass  : function (element, className) {
+                hasClass: function (element, className) {
                     return element.hasClass(className) || element.parents("." + className).length > 0;
                 },
                 hasClasses: function (element, classes) {
@@ -168,7 +173,7 @@
                     });
                     return result;
                 },
-                getTarget : function (event) {
+                getTarget: function (event) {
                     var $target = angular.element(event.target);
                     if (!$target) {
                         throw new Error("The event")
@@ -199,7 +204,7 @@
                 "$wtPosition",
                 function ($http, $document, $compile, $rootScope, $controller, $templateCache, $q, $injector, $timeout, $wtPosition) {
 
-                    var $pbox = {}, $body = $document.find('body');
+                    var $pbox = {}, $body = angular.element(document.body);
 
                     function getTemplatePromise(options) {
                         return options.template ? $q.when(options.template) :
@@ -221,22 +226,22 @@
                     function PBoxModal(options, $target) {
                         var _resultDeferred = $q.defer();
                         var _openedDeferred = $q.defer();
+                        var _self = this;
+
                         this.resultDeferred = _resultDeferred;
                         this.openedDeferred = _openedDeferred;
                         this.result = _resultDeferred.promise;
                         this.opened = _openedDeferred.promise;
-
-                        var _self = this;
                         this._options = options;
                         this._pboxElement = null;
                         this._$target = $target;
 
                         $target.data(globalOptions.boxInstanceName, this);
 
-                        PBoxModal.prototype._remove = function(){
-                            this._$target.removeData(globalOptions.boxInstanceName);
-                            this._$target.removeClass(this._options.openClass);
-                            this._pboxElement.remove();
+                        PBoxModal.prototype._remove = function () {
+                            _self._$target.removeData(globalOptions.boxInstanceName);
+                            _self._$target.removeClass(this._options.openClass);
+                            _self._pboxElement.remove();
                         };
 
                         PBoxModal.prototype._bindEvents = function () {
@@ -264,24 +269,24 @@
                         };
 
                         PBoxModal.prototype.open = function (tpl, scope) {
-                            this._pboxElement = angular.element('<div class="pbox"></div>');
-                            this._pboxElement.html(tpl);
-                            this._$target.addClass(this._options.openClass);
-                            $compile(this._pboxElement)(scope);
-                            $body.append(this._pboxElement);
+                            _self._pboxElement = angular.element('<div class="pbox"></div>');
+                            _self._pboxElement.html(tpl);
+                            _self._$target.addClass(_self._options.openClass);
+                            $compile(_self._pboxElement)(scope);
+                            $body.append(_self._pboxElement);
                             $timeout(function () {
                                 $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
                             });
-                            this._bindEvents();
+                            _self._bindEvents();
                         };
 
                         PBoxModal.prototype.close = function (result) {
-                            this._remove();
+                            _self._remove();
                             _resultDeferred.resolve(result);
                         };
 
                         PBoxModal.prototype.dismiss = function (reason) {
-                            this._remove();
+                            _self._remove();
                             _resultDeferred.reject(reason);
                         }
                     }
@@ -316,8 +321,8 @@
                         templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
 
                             var pboxScope = (options.scope || $rootScope).$new();
-                            pboxScope.$close = options.close;
-                            pboxScope.$dismiss = options.dismiss;
+                            pboxScope.$close = pboxInstance.close;
+                            pboxScope.$dismiss = pboxInstance.dismiss;
 
                             var ctrlInstance, ctrlLocals = {};
                             var resolveIter = 1;
@@ -333,6 +338,9 @@
 
                                 ctrlInstance = $controller(options.controller, ctrlLocals);
                                 pboxInstance.ctrlInstance = ctrlInstance;
+                                if (options.controllerAs) {
+                                    pboxScope[options.controllerAs] = ctrlInstance;
+                                }
                             }
 
                             pboxInstance.open(tplAndVars[0], pboxScope);

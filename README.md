@@ -1,4 +1,4 @@
-wt-pbox  Worktile 使用的基于 Angular.js 的弹出层插件
+wt-pbox 基于 Angular.js 的弹出层插件
 =========
 
 ## 为什么不使用 ui-bootstrap 的 dropdown？

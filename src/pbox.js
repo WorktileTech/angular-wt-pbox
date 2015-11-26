@@ -247,6 +247,9 @@
 
                         BoxModal.prototype._bindEvents = function () {
                             var _self = this;
+                            _self._pboxElement.bind("click.pbox",function(e){
+                                e.stopPropagation();
+                            });
                             $document.bind("click.pbox" + this._id, function (e) {
                                 var _eTarget = angular.element(e.target);
                                 if (util.hasClass(_eTarget, 'pbox')) {
@@ -278,8 +281,8 @@
                             $body.append(this._pboxElement);
                             $timeout(function () {
                                 $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
+                                _self._bindEvents();
                             });
-                            this._bindEvents();
                         };
 
                         BoxModal.prototype.close = function (result) {
@@ -328,8 +331,12 @@
                         templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
 
                             var boxScope = (options.scope || $rootScope).$new();
-                            boxScope.$close = pboxInstance.close;
-                            boxScope.$dismiss = pboxInstance.dismiss;
+                            boxScope.$close = function(result){
+                                pboxInstance.close(result);
+                            };
+                            boxScope.$dismiss = function(){
+                                pboxInstance.dismiss();
+                            };
 
                             var ctrlInstance, ctrlLocals = {};
                             var resolveIter = 1;

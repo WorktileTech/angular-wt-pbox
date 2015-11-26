@@ -44,7 +44,7 @@
                                 }
                             };
 
-                            var calTopBottom = function(){
+                            var calTopBottom = function () {
                                 if (options.align === "top") {
                                     top = elementTop;
                                     if (top + boxHeight > docClientHeight) {
@@ -70,7 +70,7 @@
                                 case "bottom":
                                     top = elementTop + elementOuterHeight + options.offset;
                                     calLeftRight();
-                                    if (top + boxHeight > docClientHeight) {
+                                    if (options.autoAdapt && top + boxHeight > docClientHeight) {
                                         top = undefined;
                                         bottom = docClientHeight - elementTop + options.offset;
                                         if (bottom + boxHeight > docClientHeight) {
@@ -81,7 +81,7 @@
                                     break;
                                 case "top":
                                     bottom = docClientHeight - elementTop + options.offset;
-                                    if (bottom + boxHeight > docClientHeight) {
+                                    if (options.autoAdapt && bottom + boxHeight > docClientHeight) {
                                         bottom = undefined;
                                         top = elementTop + elementOuterHeight + options.offset;
                                         if (top + boxHeight > docClientWidth) {
@@ -93,7 +93,7 @@
                                     break;
                                 case "left":
                                     right = ~~(docClientWidth - elementLeft + options.offset);
-                                    if (right + boxWidth + options.offset > docClientWidth) {
+                                    if (options.autoAdapt && right + boxWidth + options.offset > docClientWidth) {
                                         right = undefined;
                                         left = ~~(elementLeft + elementOuterWidth + options.offset);
                                     }
@@ -101,7 +101,7 @@
                                     break;
                                 case "right":
                                     left = elementLeft + elementOuterWidth + options.offset;
-                                    if (left + boxWidth + options.offset > docClientWidth) {
+                                    if (options.autoAdapt && left + boxWidth + options.offset > docClientWidth) {
                                         left = undefined;
                                         right = docClientWidth - elementLeft + options.offset;
                                     }
@@ -139,20 +139,21 @@
         .provider("$pbox", [function () {
             // The default options for all popboxs.
             var defaultOptions = {
-                placement : 'bottom',
-                align     : null,
-                animation : false,
+                placement: 'bottom',
+                align: null,
+                animation: false,
                 popupDelay: 0,
-                arrow     : false,
-                openClass : 'pbox-open',
+                arrow: false,
+                openClass: 'pbox-open',
                 closeClass: 'pbox-close',
-                autoClose : true,
-                offset    : 1,
-                resolve   : {}
+                autoClose: true,
+                offset: 1,
+                autoAdapt: true,
+                resolve: {}
             };
 
             var globalOptions = {
-                triggerClass   : "pbox-trigger",
+                triggerClass: "pbox-trigger",
                 boxInstanceName: "boxInstance"
             };
 
@@ -161,7 +162,7 @@
             };
 
             var util = {
-                hasClass  : function (element, className) {
+                hasClass: function (element, className) {
                     return element.hasClass(className) || element.parents("." + className).length > 0;
                 },
                 hasClasses: function (element, classes) {
@@ -174,7 +175,7 @@
                     });
                     return result;
                 },
-                getTarget : function (event) {
+                getTarget: function (event) {
                     var $target = angular.element(event.target);
                     if (!$target) {
                         throw new Error("The event")
@@ -205,7 +206,7 @@
                 "$wtPosition",
                 function ($http, $document, $compile, $rootScope, $controller, $templateCache, $q, $injector, $timeout, $wtPosition) {
 
-                    var $pbox = {}, $body = angular.element(document.body);
+                    var $pbox = {openedElement: null}, $body = angular.element(document.body);
 
                     function getTemplatePromise(options) {
                         return options.template ? $q.when(options.template) :
@@ -228,7 +229,7 @@
                         var _resultDeferred = $q.defer();
                         var _openedDeferred = $q.defer();
                         var _self = this;
-
+                        this._id = new Date().getTime() + Math.random().toString(36).substr(2);
                         this.resultDeferred = _resultDeferred;
                         this.openedDeferred = _openedDeferred;
                         this.result = _resultDeferred.promise;
@@ -236,17 +237,17 @@
                         this._options = options;
                         this._pboxElement = null;
                         this._$target = $target;
-
-                        $target.data(globalOptions.boxInstanceName, this);
+                        $target.data(globalOptions.boxInstanceName, _self);
 
                         BoxModal.prototype._remove = function () {
-                            _self._$target.removeData(globalOptions.boxInstanceName);
-                            _self._$target.removeClass(this._options.openClass);
-                            _self._pboxElement.remove();
+                            this._$target.removeData(globalOptions.boxInstanceName);
+                            this._$target.removeClass(this._options.openClass);
+                            this._pboxElement && this._pboxElement.remove();
                         };
 
                         BoxModal.prototype._bindEvents = function () {
-                            $document.bind("mousedown.pbox", function (e) {
+                            var _self = this;
+                            $document.bind("click.pbox" + this._id, function (e) {
                                 var _eTarget = angular.element(e.target);
                                 if (util.hasClass(_eTarget, 'pbox')) {
                                     return;
@@ -264,30 +265,31 @@
                                         return;
                                     }
                                 }
-                                $document.unbind("mousedown.pbox");
                                 _self.close();
                             });
                         };
 
                         BoxModal.prototype.open = function (tpl, scope) {
-                            _self._pboxElement = angular.element('<div class="pbox"></div>');
-                            _self._pboxElement.html(tpl);
-                            _self._$target.addClass(_self._options.openClass);
-                            $compile(_self._pboxElement)(scope);
-                            $body.append(_self._pboxElement);
+                            this._pboxElement = angular.element('<div class="pbox"></div>');
+                            this._pboxElement.html(tpl);
+                            this._$target.addClass(this._options.openClass);
+                            //$pbox.openedElement =  this._pboxElement;
+                            $compile(this._pboxElement)(scope);
+                            $body.append(this._pboxElement);
                             $timeout(function () {
                                 $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
                             });
-                            _self._bindEvents();
+                            this._bindEvents();
                         };
 
                         BoxModal.prototype.close = function (result) {
-                            _self._remove();
+                            this._remove();
+                            $document.unbind("click.pbox" + this._id);
                             _resultDeferred.resolve(result);
                         };
 
                         BoxModal.prototype.dismiss = function (reason) {
-                            _self._remove();
+                            this._remove();
                             _resultDeferred.reject(reason);
                         }
                     }
@@ -310,6 +312,8 @@
                         var $target = util.getTarget(options.event);
                         options.placement = $target.data("placement") ? $target.data("placement") : options.placement;
                         options.align = $target.data("align") ? $target.data("align") : options.align;
+                        options.autoAdapt = $target.data("auto-adapt") !== undefined ? $target.data("auto-adapt") : options.autoAdapt;
+
                         if ($target.data(globalOptions.boxInstanceName)) {
                             $target.data(globalOptions.boxInstanceName).close();
                             //fix click error when user result.then();

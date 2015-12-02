@@ -247,10 +247,10 @@
 
                         BoxModal.prototype._bindEvents = function () {
                             var _self = this;
-                            _self._pboxElement.bind("click.pbox",function(e){
+                            _self._pboxElement.bind("mousedown.pbox",function(e){
                                 e.stopPropagation();
                             });
-                            $document.bind("click.pbox" + this._id, function (e) {
+                            $document.bind("mousedown.pbox" + this._id, function (e) {
                                 var _eTarget = angular.element(e.target);
                                 if (util.hasClass(_eTarget, 'pbox')) {
                                     return;

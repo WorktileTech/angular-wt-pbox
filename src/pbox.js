@@ -139,21 +139,22 @@
         .provider("$pbox", [function () {
             // The default options for all popboxs.
             var defaultOptions = {
-                placement: 'bottom',
-                align: null,
-                animation: false,
-                popupDelay: 0,
-                arrow: false,
-                openClass: 'pbox-open',
+                placement : 'bottom',
+                align     : null, //居什么对齐 left,right,bottom,top
+                animation : false,//是否有动画
+                delay     : 0,       //延迟多长时间弹出
+                arrow     : false,
+                openClass : 'pbox-open',
                 closeClass: 'pbox-close',
-                autoClose: true,
-                offset: 1,
-                autoAdapt: true,
-                resolve: {}
+                autoClose : true, //点击其他区域自动关闭
+                offset    : 1,    //位移位置
+                autoAdapt : true, //是否自动计算上下，左右的高度或者宽度，当 placement 为 bottom，top的时候为true，自动调整 placement
+                watch     : false,//watch 弹出框的宽高，当有变化的时候重新计算位置
+                resolve   : {}
             };
 
             var globalOptions = {
-                triggerClass: "pbox-trigger",
+                triggerClass   : "pbox-trigger",
                 boxInstanceName: "boxInstance"
             };
 
@@ -162,7 +163,7 @@
             };
 
             var util = {
-                hasClass: function (element, className) {
+                hasClass  : function (element, className) {
                     return element.hasClass(className) || element.parents("." + className).length > 0;
                 },
                 hasClasses: function (element, classes) {
@@ -175,7 +176,7 @@
                     });
                     return result;
                 },
-                getTarget: function (event) {
+                getTarget : function (event) {
                     var $target = angular.element(event.target);
                     if (!$target) {
                         throw new Error("The event")
@@ -206,7 +207,7 @@
                 "$wtPosition",
                 function ($http, $document, $compile, $rootScope, $controller, $templateCache, $q, $injector, $timeout, $wtPosition) {
 
-                    var $pbox = {openedElement: null}, $body = angular.element(document.body);
+                    var $pbox = {}, $body = angular.element(document.body);
 
                     function getTemplatePromise(options) {
                         return options.template ? $q.when(options.template) :
@@ -246,48 +247,55 @@
                         };
 
                         BoxModal.prototype._bindEvents = function () {
-                            var _self = this;
-                            _self._pboxElement.bind("mousedown.pbox",function(e){
-                                e.stopPropagation();
-                            });
-                            $document.bind("mousedown.pbox" + this._id, function (e) {
-                                var _eTarget = angular.element(e.target);
-                                if (util.hasClass(_eTarget, 'pbox')) {
-                                    return;
-                                }
-                                if (util.hasClass(_eTarget, globalOptions.triggerClass)) {
-                                    var isResult = false;
-                                    var _target = util.getTarget(e);
-                                    if (_target && _target.data(globalOptions.boxInstanceName)) {
-                                        var instance = _target.data(globalOptions.boxInstanceName);
-                                        if (instance === _self) {
-                                            isResult = true;
-                                        }
-                                    }
-                                    if (isResult) {
+                            if (_self._options.autoClose) {
+                                _self._pboxElement.bind("mousedown.pbox", function (e) {
+                                    e.stopPropagation();
+                                });
+                                $document.bind("mousedown.pbox" + _self._id, function (e) {
+                                    var _eTarget = angular.element(e.target);
+                                    if (util.hasClass(_eTarget, 'pbox')) {
                                         return;
                                     }
-                                }
-                                _self.close();
-                            });
+                                    if (util.hasClass(_eTarget, globalOptions.triggerClass)) {
+                                        var isResult = false;
+                                        var _target = util.getTarget(e);
+                                        if (_target && _target.data(globalOptions.boxInstanceName)) {
+                                            var instance = _target.data(globalOptions.boxInstanceName);
+                                            if (instance === _self) {
+                                                isResult = true;
+                                            }
+                                        }
+                                        if (isResult) {
+                                            return;
+                                        }
+                                    }
+                                    _self.close();
+                                });
+                            }
                         };
 
                         BoxModal.prototype.open = function (tpl, scope) {
                             this._pboxElement = angular.element('<div class="pbox"></div>');
                             this._pboxElement.html(tpl);
                             this._$target.addClass(this._options.openClass);
-                            //$pbox.openedElement =  this._pboxElement;
                             $compile(this._pboxElement)(scope);
                             $body.append(this._pboxElement);
                             $timeout(function () {
                                 $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
                                 _self._bindEvents();
-                            });
+                                if (_self._options.watch) {
+                                    scope.$watch(function () {
+                                        return _self._pboxElement.width() + "," + _self._pboxElement.height()
+                                    }, function () {
+                                        $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
+                                    })
+                                }
+                            },this._options.delay);
                         };
 
                         BoxModal.prototype.close = function (result) {
                             this._remove();
-                            $document.unbind("click.pbox" + this._id);
+                            $document.unbind("mousedown.pbox" + this._id);
                             _resultDeferred.resolve(result);
                         };
 
@@ -331,10 +339,10 @@
                         templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
 
                             var boxScope = (options.scope || $rootScope).$new();
-                            boxScope.$close = function(result){
+                            boxScope.$close = function (result) {
                                 pboxInstance.close(result);
                             };
-                            boxScope.$dismiss = function(){
+                            boxScope.$dismiss = function () {
                                 pboxInstance.dismiss();
                             };
 

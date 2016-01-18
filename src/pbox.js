@@ -15,101 +15,101 @@
                             boxWidth = $boxElement.outerWidth(true),
                             boxHeight = $boxElement.outerHeight(true),
                             top, left, right, bottom;
-                        if ((options.top !== undefined || options.bottom !== undefined) && (options.left !== undefined || options.right !== undefined)) {
-                            top = options.top;
-                            bottom = options.bottom;
-                            left = options.left;
-                            right = options.right;
-                        } else {
-                            var calLeftRight = function () {
-                                if (options.align === "left") {
-                                    left = elementLeft;
-                                    if (left + boxWidth > docClientWidth) {
-                                        left = docClientWidth - boxWidth - options.offset;
-                                    }
-                                } else if (options.align === "right") {
-                                    right = docClientWidth - elementLeft - elementOuterWidth;
-                                    left = undefined;
-                                    if (right + boxWidth > docClientWidth) {
-                                        right = options.offset;
-                                    }
-                                }
-                                else {
-                                    left = elementLeft - boxWidth / 2 + elementOuterWidth / 2;
-                                    if (left < 0) {
-                                        left = options.offset;
-                                    } else if (left + boxWidth > docClientWidth) {
-                                        left = docClientWidth - boxWidth - options.offset;
-                                    }
-                                }
-                            };
+                        if (options.top !== undefined && options.left !== undefined) {
+                            elementTop = options.top;
+                            elementLeft = options.left;
+                            elementOuterWidth = 0;
+                            elementOuterHeight = 0;
+                        }
 
-                            var calTopBottom = function () {
-                                if (options.align === "top") {
-                                    top = elementTop;
-                                    if (top + boxHeight > docClientHeight) {
-                                        top = docClientHeight - boxHeight;
-                                    }
-                                } else if (options.align === "bottom") {
-                                    bottom = docClientHeight - elementTop - elementOuterHeight;
-                                    if (bottom + boxHeight > docClientHeight) {
-                                        bottom = docClientHeight - boxHeight;
-                                    }
+                        var calLeftRight = function () {
+                            if (options.align === "left") {
+                                left = elementLeft;
+                                if (left + boxWidth > docClientWidth) {
+                                    left = docClientWidth - boxWidth - options.offset;
                                 }
-                                else {
-                                    top = ~~(elementTop - boxHeight / 2 + elementOuterHeight / 2);
-                                    if (top < 0) {
-                                        top = options.offset;
-                                    } else if (top + boxHeight > docClientHeight) {
-                                        top = docClientHeight - boxHeight + options.offset;
-                                    }
+                            } else if (options.align === "right") {
+                                right = docClientWidth - elementLeft - elementOuterWidth;
+                                left = undefined;
+                                if (right + boxWidth > docClientWidth) {
+                                    right = options.offset;
                                 }
-                            };
-
-                            switch (options.placement) {
-                                case "bottom":
-                                    top = elementTop + elementOuterHeight + options.offset;
-                                    calLeftRight();
-                                    if (options.autoAdapt && top + boxHeight > docClientHeight) {
-                                        top = undefined;
-                                        bottom = docClientHeight - elementTop + options.offset;
-                                        if (bottom + boxHeight > docClientHeight) {
-                                            top = options.offset;
-                                            bottom = undefined;
-                                        }
-                                    }
-                                    break;
-                                case "top":
-                                    bottom = docClientHeight - elementTop + options.offset;
-                                    if (options.autoAdapt && bottom + boxHeight > docClientHeight) {
-                                        bottom = undefined;
-                                        top = elementTop + elementOuterHeight + options.offset;
-                                        if (top + boxHeight > docClientWidth) {
-                                            top = undefined;
-                                            bottom = docClientHeight - boxHeight + options.offset;
-                                        }
-                                    }
-                                    calLeftRight();
-                                    break;
-                                case "left":
-                                    right = ~~(docClientWidth - elementLeft + options.offset);
-                                    if (options.autoAdapt && right + boxWidth + options.offset > docClientWidth) {
-                                        right = undefined;
-                                        left = ~~(elementLeft + elementOuterWidth + options.offset);
-                                    }
-                                    calTopBottom();
-                                    break;
-                                case "right":
-                                    left = elementLeft + elementOuterWidth + options.offset;
-                                    if (options.autoAdapt && left + boxWidth + options.offset > docClientWidth) {
-                                        left = undefined;
-                                        right = docClientWidth - elementLeft + options.offset;
-                                    }
-                                    calTopBottom();
-                                    break;
-                                default:
-                                    break;
                             }
+                            else {
+                                left = elementLeft - boxWidth / 2 + elementOuterWidth / 2;
+                                if (left < 0) {
+                                    left = options.offset;
+                                } else if (left + boxWidth > docClientWidth) {
+                                    left = docClientWidth - boxWidth - options.offset;
+                                }
+                            }
+                        };
+
+                        var calTopBottom = function () {
+                            if (options.align === "top") {
+                                top = elementTop;
+                                if (top + boxHeight > docClientHeight) {
+                                    top = docClientHeight - boxHeight;
+                                }
+                            } else if (options.align === "bottom") {
+                                bottom = docClientHeight - elementTop - elementOuterHeight;
+                                if (bottom + boxHeight > docClientHeight) {
+                                    bottom = docClientHeight - boxHeight;
+                                }
+                            }
+                            else {
+                                top = ~~(elementTop - boxHeight / 2 + elementOuterHeight / 2);
+                                if (top < 0) {
+                                    top = options.offset;
+                                } else if (top + boxHeight > docClientHeight) {
+                                    top = docClientHeight - boxHeight + options.offset;
+                                }
+                            }
+                        };
+
+                        switch (options.placement) {
+                            case "bottom":
+                                top = elementTop + elementOuterHeight + options.offset;
+                                calLeftRight();
+                                if (options.autoAdapt && top + boxHeight > docClientHeight) {
+                                    top = undefined;
+                                    bottom = docClientHeight - elementTop + options.offset;
+                                    if (bottom + boxHeight > docClientHeight) {
+                                        top = options.offset;
+                                        bottom = undefined;
+                                    }
+                                }
+                                break;
+                            case "top":
+                                bottom = docClientHeight - elementTop + options.offset;
+                                if (options.autoAdapt && bottom + boxHeight > docClientHeight) {
+                                    bottom = undefined;
+                                    top = elementTop + elementOuterHeight + options.offset;
+                                    if (top + boxHeight > docClientWidth) {
+                                        top = undefined;
+                                        bottom = docClientHeight - boxHeight + options.offset;
+                                    }
+                                }
+                                calLeftRight();
+                                break;
+                            case "left":
+                                right = ~~(docClientWidth - elementLeft + options.offset);
+                                if (options.autoAdapt && right + boxWidth + options.offset > docClientWidth) {
+                                    right = undefined;
+                                    left = ~~(elementLeft + elementOuterWidth + options.offset);
+                                }
+                                calTopBottom();
+                                break;
+                            case "right":
+                                left = elementLeft + elementOuterWidth + options.offset;
+                                if (options.autoAdapt && left + boxWidth + options.offset > docClientWidth) {
+                                    left = undefined;
+                                    right = docClientWidth - elementLeft + options.offset;
+                                }
+                                calTopBottom();
+                                break;
+                            default:
+                                break;
                         }
 
                         if (top !== undefined) {

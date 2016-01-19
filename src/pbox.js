@@ -71,40 +71,59 @@
                             case "bottom":
                                 top = elementTop + elementOuterHeight + options.offset;
                                 calLeftRight();
-                                if (options.autoAdapt && top + boxHeight > docClientHeight) {
-                                    top = undefined;
-                                    bottom = docClientHeight - elementTop + options.offset;
-                                    if (bottom + boxHeight > docClientHeight) {
-                                        top = options.offset;
-                                        bottom = undefined;
+                                if (top + boxHeight > docClientHeight) {
+                                    if (options.autoAdapt) {
+                                        top = undefined;
+                                        bottom = docClientHeight - elementTop + options.offset;
+                                        if (bottom + boxHeight > docClientHeight) {
+                                            top = options.offset;
+                                            bottom = undefined;
+                                        }
+                                    } else {
+                                        top = docClientHeight - boxHeight - options.offset;
+                                        top = top > 0 ? top : options.offset;
                                     }
                                 }
                                 break;
                             case "top":
                                 bottom = docClientHeight - elementTop + options.offset;
-                                if (options.autoAdapt && bottom + boxHeight > docClientHeight) {
-                                    bottom = undefined;
-                                    top = elementTop + elementOuterHeight + options.offset;
-                                    if (top + boxHeight > docClientWidth) {
-                                        top = undefined;
-                                        bottom = docClientHeight - boxHeight + options.offset;
+                                if (bottom + boxHeight > docClientHeight) {
+                                    if (options.autoAdapt) {
+                                        bottom = undefined;
+                                        top = elementTop + elementOuterHeight + options.offset;
+                                        if (top + boxHeight > docClientWidth) {
+                                            top = undefined;
+                                            bottom = docClientHeight - boxHeight + options.offset;
+                                        }
+                                    } else {
+                                        bottom = docClientHeight - boxHeight - options.offset;
+                                        bottom = bottom > 0 ? bottom : options.offset;
                                     }
+
                                 }
                                 calLeftRight();
                                 break;
                             case "left":
                                 right = ~~(docClientWidth - elementLeft + options.offset);
-                                if (options.autoAdapt && right + boxWidth + options.offset > docClientWidth) {
-                                    right = undefined;
-                                    left = ~~(elementLeft + elementOuterWidth + options.offset);
+                                if (right + boxWidth + options.offset > docClientWidth) {
+                                    if (options.autoAdapt) {
+                                        right = undefined;
+                                        left = ~~(elementLeft + elementOuterWidth + options.offset);
+                                    } else {
+                                        right = docClientWidth - boxWidth - options.offset;
+                                    }
                                 }
                                 calTopBottom();
                                 break;
                             case "right":
                                 left = elementLeft + elementOuterWidth + options.offset;
-                                if (options.autoAdapt && left + boxWidth + options.offset > docClientWidth) {
-                                    left = undefined;
-                                    right = docClientWidth - elementLeft + options.offset;
+                                if (left + boxWidth + options.offset > docClientWidth) {
+                                    if (options.autoAdapt) {
+                                        left = undefined;
+                                        right = docClientWidth - elementLeft + options.offset;
+                                    } else {
+                                        left = docClientWidth - boxWidth - options.offset;
+                                    }
                                 }
                                 calTopBottom();
                                 break;
@@ -112,18 +131,10 @@
                                 break;
                         }
 
-                        if (top !== undefined) {
-                            $boxElement.css("top", top);
-                        }
-                        if (bottom) {
-                            $boxElement.css("bottom", bottom);
-                        }
-                        if (left !== undefined) {
-                            $boxElement.css("left", left);
-                        }
-                        if (right !== undefined) {
-                            $boxElement.css("right", right);
-                        }
+                        $boxElement.css("top", top || "");
+                        $boxElement.css("bottom", bottom || "");
+                        $boxElement.css("left", left || "");
+                        $boxElement.css("right", right || "");
 
                         if (options.animation === true) {
                             $boxElement.slideToggle("normal");
@@ -281,16 +292,19 @@
                             $compile(this._pboxElement)(scope);
                             $body.append(this._pboxElement);
                             $timeout(function () {
-                                $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
                                 _self._bindEvents();
                                 if (_self._options.watch) {
                                     scope.$watch(function () {
                                         return _self._pboxElement.width() + "," + _self._pboxElement.height()
                                     }, function () {
-                                        $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
+                                        $timeout(function () {
+                                            $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
+                                        });
                                     })
+                                } else {
+                                    $wtPosition.calculatePos(_self._options, $target, _self._pboxElement);
                                 }
-                            },this._options.delay);
+                            }, this._options.delay);
                         };
 
                         BoxModal.prototype.close = function (result) {

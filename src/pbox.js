@@ -157,7 +157,8 @@
                 arrow     : false,
                 openClass : 'pbox-open',
                 closeClass: 'pbox-close',
-                autoClose : true, //点击其他区域自动关闭
+                autoClose : true, //点击其他区域自动关闭，当点击触发弹出框的元素或者弹出框内部元素时不关闭，
+                forceClose: false,//autoClose为true时起作用，点击触发弹出框的元素也关闭
                 offset    : 1,    //位移位置
                 autoAdapt : true, //是否自动计算上下，左右的高度或者宽度，当 placement 为 bottom，top的时候为true，自动调整 placement
                 watch     : false,//watch 弹出框的宽高，当有变化的时候重新计算位置
@@ -267,7 +268,7 @@
                                     if (util.hasClass(_eTarget, 'pbox')) {
                                         return;
                                     }
-                                    if (util.hasClass(_eTarget, globalOptions.triggerClass)) {
+                                    if (!_self._options.forceClose && util.hasClass(_eTarget, globalOptions.triggerClass)) {
                                         var isResult = false;
                                         var _target = util.getTarget(e);
                                         if (_target && _target.data(globalOptions.boxInstanceName)) {

@@ -142,7 +142,7 @@
                             $boxElement.addClass(options.openClass);
                             $boxElement.removeClass(options.closeClass);
                         }
-                        $element.addClass(options.openClass);
+                        //$element.addClass(options.openClass);
                     }
                 }
             }];
@@ -295,7 +295,7 @@
                             $timeout(function () {
                                 _self._bindEvents();
                                 if (_self._options.watch) {
-                                    scope.$watch(function () {
+                                    _self.$watch = scope.$watch(function () {
                                         return _self._pboxElement.width() + "," + _self._pboxElement.height()
                                     }, function () {
                                         $timeout(function () {
@@ -310,6 +310,7 @@
 
                         BoxModal.prototype.close = function (result) {
                             this._remove();
+                            this.$watch && this.$watch();
                             $document.unbind("mousedown.pbox" + this._id);
                             _resultDeferred.resolve(result);
                         };

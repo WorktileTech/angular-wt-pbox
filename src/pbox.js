@@ -313,6 +313,7 @@
                             this._remove();
                             this.$watch && this.$watch();
                             this._scope && this._scope.$destroy();
+                            this._scope = null;
                             $document.unbind("mousedown.pbox" + this._id);
                             _resultDeferred.resolve(result);
                         };
@@ -320,6 +321,7 @@
                         BoxModal.prototype.dismiss = function (reason) {
                             this._remove();
                             this._scope && this._scope.$destroy();
+                            this._scope = null;
                             _resultDeferred.reject(reason);
                         }
                     }

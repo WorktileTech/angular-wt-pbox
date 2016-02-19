@@ -150,23 +150,23 @@
         .provider("$pbox", [function () {
             // The default options for all popboxs.
             var defaultOptions = {
-                placement: 'bottom',
-                align: null, //居什么对齐 left,right,bottom,top
-                animation: false,//是否有动画
-                delay: 0,       //延迟多长时间弹出
-                arrow: false,
-                openClass: 'pbox-open',
+                placement : 'bottom',
+                align     : null, //居什么对齐 left,right,bottom,top
+                animation : false,//是否有动画
+                delay     : 0,       //延迟多长时间弹出
+                arrow     : false,
+                openClass : 'pbox-open',
                 closeClass: 'pbox-close',
-                autoClose: true, //点击其他区域自动关闭，当点击触发弹出框的元素或者弹出框内部元素时不关闭，
+                autoClose : true, //点击其他区域自动关闭，当点击触发弹出框的元素或者弹出框内部元素时不关闭，
                 forceClose: false,//autoClose为true时起作用，点击触发弹出框的元素也关闭
-                offset: 1,    //位移位置
-                autoAdapt: true, //是否自动计算上下，左右的高度或者宽度，当 placement 为 bottom，top的时候为true，自动调整 placement
-                watch: false,//watch 弹出框的宽高，当有变化的时候重新计算位置
-                resolve: {}
+                offset    : 1,    //位移位置
+                autoAdapt : true, //是否自动计算上下，左右的高度或者宽度，当 placement 为 bottom，top的时候为true，自动调整 placement
+                watch     : false,//watch 弹出框的宽高，当有变化的时候重新计算位置
+                resolve   : {}
             };
 
             var globalOptions = {
-                triggerClass: "pbox-trigger",
+                triggerClass   : "pbox-trigger",
                 boxInstanceName: "boxInstance"
             };
 
@@ -175,7 +175,7 @@
             };
 
             var util = {
-                hasClass: function (element, className) {
+                hasClass  : function (element, className) {
                     return element.hasClass(className) || element.parents("." + className).length > 0;
                 },
                 hasClasses: function (element, classes) {
@@ -188,7 +188,7 @@
                     });
                     return result;
                 },
-                getTarget: function (event) {
+                getTarget : function (event) {
                     var $target = angular.element(event.target);
                     if (!$target) {
                         throw new Error("The event")
@@ -283,6 +283,16 @@
                                     }
                                     _self.close();
                                 });
+
+                                _self._pboxElement.bind("keydown.pbox", function (e) {
+                                    e.stopPropagation();
+                                });
+                                $document.bind("keydown.pbox" + _self._id, function (evt) {
+                                    if (evt.which == 27) {
+                                        evt.preventDefault();
+                                        _self.close();
+                                    }
+                                });
                             }
                         };
 
@@ -315,13 +325,17 @@
                             this._scope && this._scope.$destroy();
                             this._scope = null;
                             $document.unbind("mousedown.pbox" + this._id);
+                            $document.unbind("keydown.pbox" + this._id);
                             _resultDeferred.resolve(result);
                         };
 
                         BoxModal.prototype.dismiss = function (reason) {
                             this._remove();
+                            this.$watch && this.$watch();
                             this._scope && this._scope.$destroy();
                             this._scope = null;
+                            $document.unbind("mousedown.pbox" + this._id);
+                            $document.unbind("keydown.pbox" + this._id);
                             _resultDeferred.reject(reason);
                         }
                     }

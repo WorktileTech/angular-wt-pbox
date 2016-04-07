@@ -319,24 +319,23 @@
                             }, this._options.delay);
                         };
 
-                        BoxModal.prototype.close = function (result) {
+                        BoxModal.prototype._destroy = function (result) {
                             this._remove();
                             this.$watch && this.$watch();
                             this._scope && this._scope.$destroy();
                             this._scope = null;
                             $document.unbind("mousedown.pbox" + this._id);
                             $document.unbind("keydown.pbox" + this._id);
-                            _resultDeferred.resolve(result);
+                        };
+
+                        BoxModal.prototype.close = function (result) {
+                            this._destroy();
+                            this.resultDeferred.resolve(result);
                         };
 
                         BoxModal.prototype.dismiss = function (reason) {
-                            this._remove();
-                            this.$watch && this.$watch();
-                            this._scope && this._scope.$destroy();
-                            this._scope = null;
-                            $document.unbind("mousedown.pbox" + this._id);
-                            $document.unbind("keydown.pbox" + this._id);
-                            _resultDeferred.reject(reason);
+                            this._destroy();
+                            this.resultDeferred.reject(reason);
                         }
                     }
 

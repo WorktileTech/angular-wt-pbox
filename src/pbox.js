@@ -281,7 +281,10 @@
                                     }
                                     _self.close();
                                 });
-
+                                _self._windowResize = (function () {
+                                    $wtPosition.calculatePos(this._options, $target, this._pboxElement);
+                                }).bind(_self);
+                                $(window).resize(_self._windowResize);
                                 _self._pboxElement.bind("keydown.pbox", function (e) {
                                     e.stopPropagation();
                                 });
@@ -325,6 +328,7 @@
                             this._scope = null;
                             $document.unbind("mousedown.pbox" + this._id);
                             $document.unbind("keydown.pbox" + this._id);
+                            $(window).off(this._windowResize);
                         };
 
                         BoxModal.prototype.close = function (result) {

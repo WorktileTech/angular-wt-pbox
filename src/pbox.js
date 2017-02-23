@@ -328,7 +328,7 @@
                             this._scope = null;
                             $document.unbind("mousedown.pbox" + this._id);
                             $document.unbind("keydown.pbox" + this._id);
-                            $(window).off(this._windowResize);
+                            $(window).off('resize', this._windowResize);
                         };
 
                         BoxModal.prototype.close = function (result) {

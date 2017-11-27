@@ -1,6 +1,6 @@
 {
   "name": "angular-wtpbox",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "main": "src/pbox.js",
   "dependencies": {
     "angular": "~1.2.25",

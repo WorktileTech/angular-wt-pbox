@@ -32,7 +32,8 @@
                                 right = docClientWidth - elementLeft - elementOuterWidth;
                                 left = undefined;
                                 if (right + boxWidth > docClientWidth) {
-                                    right = options.offset;
+                                    // right = options.offset;
+                                    right = docClientWidth - boxWidth - options.offset;
                                 }
                             }
                             else {
